@@ -1,0 +1,27 @@
+# Large local data
+Data/BCICIV_2a_gdf/
+Data/A0xE/
+
+# Media and local exports
+code/online/media/
+code/online/archive/
+code/online/scratch/
+code/online/onlinev50pro.zip
+code/online/last_processed_frame.png
+docs/reports/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE and OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Office temp files
+~$*.pptx
+~$*.docx
+~$*.xlsx
