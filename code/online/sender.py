@@ -1,13 +1,15 @@
-import socket
-import time
-import struct
-import numpy as np
-import mne
 import os
+import socket
+import struct
+import time
+
+import mne
+import numpy as np
 
 # ================= 配置区域 =================
 
-DATA_DIR_GDF = r"D:\data\BCICIV_2a_gdf"
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DATA_DIR_GDF = os.path.join(PROJECT_ROOT, "Data", "BCICIV_2a_gdf")
 SUBJECT_ID = 8
 
 # 网络配置
