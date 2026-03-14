@@ -10,7 +10,7 @@ import numpy as np
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DATA_DIR_GDF = os.path.join(PROJECT_ROOT, "Data", "BCICIV_2a_gdf")
-SUBJECT_ID = 8
+SUBJECT_ID = 5
 
 # 网络配置
 HOST = '0.0.0.0' # 本地地址

@@ -237,7 +237,8 @@ def run_xdf_simulation(xdf_path, artifacts_dir):
 
 if __name__ == "__main__":
     # ==== 请检查并修改这里的路径 ====
-    ARTIFACTS_DIR = r"C:\Users\Pythsen\Desktop\BCI-Control-Car\code\online\onlinev50pro"
-    XDF_PATH = r"C:\Users\Pythsen\xwechat_files\wxid_bbbr9r2z4zjt22_a572\msg\file\2026-03\example_EEG_workflow-20260312_181155.xdf"
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    ARTIFACTS_DIR = os.path.join(project_root, "code", "online", "onlinev50pro")
+    XDF_PATH = os.path.join(project_root, "Data", "xdf", "eeg_workflow_20260312_181155.xdf")
     
     run_xdf_simulation(XDF_PATH, ARTIFACTS_DIR)

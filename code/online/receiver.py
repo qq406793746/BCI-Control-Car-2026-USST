@@ -13,7 +13,7 @@ from scipy.signal import butter, iirnotch, lfilter, lfilter_zi
 
 # ================= 配置 =================
 ARTIFACTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "onlinev50pro")
-TIMELINE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cue_timeline", "cue_timeline0tt.txt")
+TIMELINE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cue_timeline", "cue_timeline5.txt")
 HOST = '127.0.0.1'
 PORT = 65432
 

@@ -176,8 +176,9 @@ def run_xdf_inference(xdf_path, engine):
 
 if __name__ == "__main__":
     # 路径配置
-    ARTIFACTS_DIR = r"C:\Users\Pythsen\Desktop\BCI-Control-Car\code\online\onlinev50pro"
-    XDF_PATH = r"C:\Users\Pythsen\xwechat_files\wxid_bbbr9r2z4zjt22_a572\msg\file\2026-03\example_EEG_workflow-20260312_181155.xdf"
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    ARTIFACTS_DIR = os.path.join(project_root, "code", "online", "onlinev50pro")
+    XDF_PATH = os.path.join(project_root, "Data", "xdf", "eeg_workflow_20260312_181155.xdf")
 
     if os.path.exists(ARTIFACTS_DIR):
         engine = BCIInferenceEngine(ARTIFACTS_DIR)

@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import time
+
 import pyxdf
 from pylsl import StreamInfo, StreamOutlet
 
 # ================= 配置区域 =================
-XDF_FILE_PATH = r"C:\Users\Pythsen\xwechat_files\wxid_bbbr9r2z4zjt22_a572\msg\file\2026-03\example_EEG_workflow-20260312_181155.xdf" # 替换为你的实际路径
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+XDF_FILE_PATH = os.path.join(PROJECT_ROOT, "Data", "xdf", "eeg_workflow_20260312_181155.xdf")
 
 def run_xdf_sender():
     print(f"[Sender] 正在加载 XDF 文件: {XDF_FILE_PATH} ...")
