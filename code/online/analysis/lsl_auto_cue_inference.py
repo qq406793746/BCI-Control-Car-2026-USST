@@ -22,9 +22,12 @@ from scipy.signal import butter, iirnotch, lfilter, lfilter_zi
 from pylsl import StreamInlet, resolve_byprop
 
 # ================= 配置区域 =================
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
+
 # 确保这个目录里有 best_model.pth, best_csp.pkl, best_scalers.pkl
-ARTIFACTS_DIR = r"C:\Users\Pythsen\Desktop\BCI-Control-Car\code\online\onlinev50pro"
-CUE_FILE_PATH = r"C:\Users\Pythsen\Desktop\BCI-Control-Car\code\online\cue_timeline\cue_timeline0tt.txt" # 请替换为你的实际 txt 路径
+ARTIFACTS_DIR = os.path.join(PROJECT_ROOT, "code", "online", "onlinev50pro")
+CUE_FILE_PATH = os.path.join(PROJECT_ROOT, "code", "online", "cue_timeline", "cue_timeline5.txt")
 
 GOLDEN_SCALE = 1e-06     
 FS_DST = 250.0           
@@ -38,6 +41,8 @@ LABEL_MAP = {0: 'Left', 1: 'Right', 2: 'Foot', 3: 'Tongue'}
 PLOT_CHANNELS = [7, 9, 11] # C3, Cz, C4
 PLOT_LABELS = ['C3 (uV)', 'Cz (uV)', 'C4 (uV)']
 PLOT_COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c']
+MODEL_CHANNELS = 25
+VIS_CHANNELS = 22
 
 # ================= 模型定义 =================
 class PositionalEncoding(nn.Module):
@@ -123,7 +128,7 @@ class BCIProcessor_LSL:
         self.csp = joblib.load(os.path.join(ARTIFACTS_DIR, "best_csp.pkl"))
         self.scalers = joblib.load(os.path.join(ARTIFACTS_DIR, "best_scalers.pkl"))
         
-        self.model = EEGNetLight(n_channels=25, n_times=WINDOW_SIZE, n_classes=4, csp_dim=6).to(DEVICE)
+        self.model = EEGNetLight(n_channels=MODEL_CHANNELS, n_times=WINDOW_SIZE, n_classes=4, csp_dim=6).to(DEVICE)
         self.model.load_state_dict(torch.load(os.path.join(ARTIFACTS_DIR, "best_model.pth"), map_location=DEVICE))
         self.model.eval()
 
@@ -138,16 +143,30 @@ class BCIProcessor_LSL:
             
         self.current_cue_idx = 0
 
-        self.filter = OnlineFilter(n_channels=25, fs=FS_DST)
+        self.filter = OnlineFilter(n_channels=MODEL_CHANNELS, fs=FS_DST)
         
         # 【核心修正】：为了应对 LSL Chunk 的数据溢出，缓存区加大 100 个点，保证回溯不出错
-        self.buffer = np.zeros((25, WINDOW_SIZE *3), dtype=np.float32)
-        self.vis_buffer = np.zeros((22, PLOT_WINDOW)) 
+        self.buffer = np.zeros((MODEL_CHANNELS, WINDOW_SIZE *3), dtype=np.float32)
+        self.vis_buffer = np.zeros((VIS_CHANNELS, PLOT_WINDOW)) 
         
         self.total_samples = 0
         self.last_result = None
 
     def process_chunk(self, chunk_250hz):
+        if chunk_250hz.shape[0] != MODEL_CHANNELS:
+            print(
+                f"[Warn] Expected {MODEL_CHANNELS} channels but received "
+                f"{chunk_250hz.shape[0]}. Truncating/padding to match the model."
+            )
+            if chunk_250hz.shape[0] > MODEL_CHANNELS:
+                chunk_250hz = chunk_250hz[:MODEL_CHANNELS, :]
+            else:
+                pad = np.zeros(
+                    (MODEL_CHANNELS - chunk_250hz.shape[0], chunk_250hz.shape[1]),
+                    dtype=chunk_250hz.dtype,
+                )
+                chunk_250hz = np.vstack([chunk_250hz, pad])
+
         chunk_volts = chunk_250hz * GOLDEN_SCALE
         filtered = self.filter.process(chunk_volts)
         n_new = filtered.shape[1]
@@ -157,7 +176,7 @@ class BCIProcessor_LSL:
         self.buffer[:, -n_new:] = filtered
         
         self.vis_buffer = np.roll(self.vis_buffer, -n_new, axis=1)
-        self.vis_buffer[:, -n_new:] = filtered[:22, :]
+        self.vis_buffer[:, -n_new:] = filtered[:VIS_CHANNELS, :]
 
         self.total_samples += n_new
 
@@ -195,7 +214,7 @@ class BCIProcessor_LSL:
                 current_trial = self.buffer[:, -(WINDOW_SIZE + offset) : -offset]
             
             temp_input = current_trial.copy()
-            for ch in range(25):
+            for ch in range(MODEL_CHANNELS):
                 temp_input[ch] = self.scalers[ch].transform(temp_input[ch].reshape(1, -1)).flatten()
 
             trial_data_for_csp = current_trial[np.newaxis, :, :]
@@ -248,8 +267,8 @@ def run_visual_receiver():
     
     plt.tight_layout()
 
-    print("[系统] 正在寻找名为 'BCI_Relay_25ch' 的中转流...")
-    streams = resolve_byprop("name", "BCI_Relay_25ch", timeout=1000.0)
+    print("[System] Looking for LSL stream named 'SAGA_Simulator' ...")
+    streams = resolve_byprop("name", "SAGA_Simulator", timeout=1000.0)
     if not streams:
         print("[错误] 未找到中转流，请检查 relay_node.py 是否运行！")
         return

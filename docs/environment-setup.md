@@ -64,3 +64,37 @@ py -m pip install -r requirements.txt
 
 - 这个项目当前还保留了一些硬编码绝对路径
 - 如果你准备重新跑训练或在线推理，除了安装依赖，还需要把数据集路径改到你本机实际位置
+
+## VS Code 提示未导入 `pylsl` 的排查
+
+现象：
+- 终端里运行脚本没问题
+- 但 VS Code 编辑器里仍提示 `Import "pylsl" could not be resolved`
+
+原因通常不是 `pylsl` 没装，而是 VS Code 当前选用的 Python 解释器和你安装依赖时使用的解释器不是同一个。
+
+本机这次确认安装 `pylsl` 的解释器是：
+- `C:\Users\123\AppData\Local\Programs\Python\Python39\python.exe`
+
+处理步骤：
+
+1. 按 `Ctrl+Shift+P`
+2. 执行 `Python: Select Interpreter`
+3. 选择：
+   `C:\Users\123\AppData\Local\Programs\Python\Python39\python.exe`
+4. 再执行 `Developer: Reload Window`
+
+如果还报红，再继续：
+
+1. 在 VS Code 终端里运行：
+```bash
+py -c "import pylsl; print(pylsl.__file__)"
+```
+2. 如果这条命令能成功，说明库已经装好，只是编辑器索引没刷新
+3. 执行：
+   - `Pylance: Restart Language Server`
+   - 或直接重启 VS Code
+
+结论：
+- 终端能 `import pylsl`，通常说明安装没问题
+- VS Code 还报未导入，多半是解释器选错了，或者 Pylance 缓存没刷新
