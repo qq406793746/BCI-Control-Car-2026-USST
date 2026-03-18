@@ -8,6 +8,8 @@ code/online/archive/
 code/online/scratch/
 code/online/onlinev50pro.zip
 code/online/last_processed_frame.png
+code/online/build/
+code/online/dist/
 docs/reports/
 
 # Python cache

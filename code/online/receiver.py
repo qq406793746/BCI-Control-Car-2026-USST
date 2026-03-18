@@ -10,10 +10,11 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from scipy.signal import butter, iirnotch, lfilter, lfilter_zi
+from app_paths import resource_path
 
 # ================= 配置 =================
-ARTIFACTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "onlinev50pro")
-TIMELINE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cue_timeline", "cue_timeline5.txt")
+ARTIFACTS_DIR = resource_path("onlinev50pro")
+TIMELINE_FILE = resource_path("cue_timeline", "cue_timeline5.txt")
 HOST = '127.0.0.1'
 PORT = 65432
 
